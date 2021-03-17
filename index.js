@@ -362,7 +362,7 @@ module.exports = (nextApp, {
       }
 
       const token = uuid()
-      const url = (serverUrl || `${req.protocol}://${req.headers.host}`) + `${pathPrefix}/email/signin/${token}`
+      const url = `${pathPrefix}/email/signin/${token}`
 
       // Create verification token save it to database
       functions.find({ email: email })
@@ -406,8 +406,6 @@ module.exports = (nextApp, {
         return res.redirect(`${pathPrefix}/error?action=signin&type=token-missing`)
       }
 
-      console.log('finding user with req.params.token: ' + req.params.token);
-
       functions.find({ emailToken: req.params.token })
       .then(user => {
         if (user) {
@@ -426,11 +424,9 @@ module.exports = (nextApp, {
           if (err) return res.redirect(`${pathPrefix}/error?action=signin&type=token-invalid`)
           if (req.xhr) {
             // If AJAX request (from client with JS), return JSON response
-            console.log('// If AJAX request (from client with JS), return JSON response')
             return res.json({success: true})
           } else {
             // If normal form POST (from client without JS) return redirect
-            console.log('// If normal form POST (from client without JS) return redirect')
             return res.redirect(`${pathPrefix}/callback?action=signin&service=email`)
           }
         })
