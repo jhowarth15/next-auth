@@ -406,11 +406,13 @@ module.exports = (nextApp, {
         return res.redirect(`${pathPrefix}/error?action=signin&type=token-missing`)
       }
 
+      console.log('finding user with req.params.token: ' + req.params.token);
+
       functions.find({ emailToken: req.params.token })
       .then(user => {
         if (user) {
           // Delete current token so it cannot be used again
-          // delete user.emailToken
+          delete user.emailToken
           // Mark email as verified now we know they have access to it
           user.emailVerified = true
           return functions.update(user, null, { delete: 'emailToken' })
@@ -424,9 +426,11 @@ module.exports = (nextApp, {
           if (err) return res.redirect(`${pathPrefix}/error?action=signin&type=token-invalid`)
           if (req.xhr) {
             // If AJAX request (from client with JS), return JSON response
+            console.log('// If AJAX request (from client with JS), return JSON response')
             return res.json({success: true})
           } else {
             // If normal form POST (from client without JS) return redirect
+            console.log('// If normal form POST (from client without JS) return redirect')
             return res.redirect(`${pathPrefix}/callback?action=signin&service=email`)
           }
         })
