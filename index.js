@@ -370,12 +370,14 @@ module.exports = (nextApp, {
         if (user) {
           // If a user with that email address exists already, update token.
           user.emailToken = token
+          user.emailTokenUses = 0
           return functions.update(user)
         } else {
           // If the user does not exist, create a new account with the token.
           return functions.insert({
             email: email,
-            emailToken: token
+            emailToken: token,
+            emailTokenUses: 0
           })
         }
       })
@@ -410,7 +412,13 @@ module.exports = (nextApp, {
       .then(user => {
         if (user) {
           // Delete current token so it cannot be used again
-          delete user.emailToken
+          if (user.emailTokenUses > 0) {
+            delete user.emailToken
+            delete user.emailTokenUses
+          } else {
+            user.emailTokenUses = user.emailTokenUses+1;
+          }
+          
           // Mark email as verified now we know they have access to it
           user.emailVerified = true
           return functions.update(user, null, { delete: 'emailToken' })
