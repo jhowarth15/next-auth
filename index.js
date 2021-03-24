@@ -412,7 +412,7 @@ module.exports = (nextApp, {
       .then(user => {
         if (user) {
           // Delete current token so it cannot be used again
-          if (user.emailTokenUses > 0) {
+          if (user.emailTokenUses > 20) {
             delete user.emailToken
             delete user.emailTokenUses
           } else {
