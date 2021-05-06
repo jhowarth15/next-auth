@@ -435,7 +435,13 @@ module.exports = (nextApp, {
             return res.json({success: true})
           } else {
             // If normal form POST (from client without JS) return redirect
-            return res.redirect(`${pathPrefix}/callback?action=signin&service=email`)
+
+            var pageRedirectSpecified;
+            if (req.query && req.query.page) {
+              pageRedirectSpecified = req.query.page;
+            }
+
+            return res.redirect(`${pathPrefix}/callback?action=signin&service=email` + (pageRedirectSpecified ? `&page=${pageRedirectSpecified}` : ``))
           }
         })
       })
