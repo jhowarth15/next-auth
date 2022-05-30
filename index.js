@@ -323,26 +323,25 @@ module.exports = (nextApp, {
         form: req.body,
         req: req
       })
-      .then(user => {
+      .then(({user, error}) => {
+
         if (user) {
           // If signIn() returns a user, sign in as them
           req.logIn(user, (err) => {
-            if (err) return res.redirect(`${pathPrefix}/error?action=signin&type=credentials`)
-            if (req.xhr) {
-              // If AJAX request (from client with JS), return JSON response
-              return res.json({success: true})
-            } else {
-              // If normal form POST (from client without JS) return redirect
-              return res.redirect(`${pathPrefix}/callback?action=signin&service=credentials`)
-            }
+            
+            if (err) return res.json({success: false, error: err})
+            
+            return res.json({success: true})
+
           })
+
         } else {
-          // If no user object is returned, bounce back to the sign in page
-          return res.redirect(`${pathPrefix}`)
+          // If no user object is returned
+          return res.json({success: false, error: error})
         }
       })
       .catch(err => {
-        return res.redirect(`${pathPrefix}/error?action=signin&type=credentials`)
+        return res.json({success: false, error: err})
       })
     })
   }
